@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+    <!-- Suppresses the warnings about the package not having assemblies in lib/*/.dll.-->
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <!-- Change the default location where NuGet will put the build output -->
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+    <!-- Generate nuget when building for ease of testing -->
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <!-- Removes dependency on the task for other projects -->
+    <DevelopmentDependency>true</DevelopmentDependency>
+
+    <Version>1.0.0</Version>
+	<Authors>diogotr7</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="build\*" PackagePath="build\" />
+    <Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Framework" Version="17.0.0" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <!-- Marks all packages as 'local only' so they don't end up in the nuspec. -->
+    <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
+  </ItemGroup>
+
+</Project>
