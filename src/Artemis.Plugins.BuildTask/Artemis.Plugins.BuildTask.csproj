@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     <!-- Suppresses the warnings about the package not having assemblies in lib/*/.dll.-->
@@ -10,8 +10,14 @@
     <!-- Removes dependency on the task for other projects -->
     <DevelopmentDependency>true</DevelopmentDependency>
 
+	<PackageId>ArtemisRGB.Plugins.BuildTask</PackageId>
     <Version>1.0.0</Version>
 	<Authors>diogotr7</Authors>
+	<License>MIT</License>
+	<Description>MSBuild task that copies Artemis plugins to the correct directory</Description>
+	<RepositoryUrl>https://github.com/Artemis-RGB/Artemis.Plugins.BuildTask</RepositoryUrl>
+	<PackageProjectUrl>https://artemis-rgb.com/</PackageProjectUrl>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
