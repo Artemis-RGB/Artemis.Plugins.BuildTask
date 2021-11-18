@@ -1,7 +1,8 @@
-﻿using Microsoft.Build.Framework;
-using Newtonsoft.Json;
+using Microsoft.Build.Framework;
 using System;
 using System.IO;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Artemis.Plugins.BuildTask
@@ -25,7 +26,7 @@ namespace Artemis.Plugins.BuildTask
                 return false;
             }
 
-            var pluginInfo = JsonConvert.DeserializeObject<PluginInfo>(File.ReadAllText(PluginJson));
+            var pluginInfo = JSONSerializer<PluginInfo>.DeSerialize(File.ReadAllText(PluginJson));
 
             if (pluginInfo == null)
             {
@@ -51,13 +52,17 @@ namespace Artemis.Plugins.BuildTask
 
         private static string GetDestinationDirectory(PluginInfo info)
         {
+            if (!Guid.TryParse(info.Guid, out var validGuid))
+                throw new ArgumentException("Invalid GUID in plugin.json");
+
+            var preferredPluginDirectory = $"{info.Main.Split(new string[] { ".dll" }, StringSplitOptions.None)[0].Replace("/", "").Replace("\\", "")}-{validGuid.ToString().Substring(0, 8)}";
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 return Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
                     "Artemis",
                     "Plugins",
-                    info.PreferredPluginDirectory);
+                    preferredPluginDirectory);
             }
             else
             {
@@ -66,7 +71,7 @@ namespace Artemis.Plugins.BuildTask
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "Artemis",
                     "Plugins",
-                    info.PreferredPluginDirectory);
+                    preferredPluginDirectory);
             }
         }
 

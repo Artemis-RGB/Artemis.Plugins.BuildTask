@@ -1,49 +1,34 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace Artemis.Plugins.BuildTask
 {
-    internal class PluginInfo
+    [DataContract]
+    [Serializable]
+    public class PluginInfo
     {
-        /// <summary>
-        ///     The plugins GUID
-        /// </summary>
-        public Guid Guid { get; set; }
+        [DataMember]
+        public string Guid;
 
-        /// <summary>
-        ///     The name of the plugin
-        /// </summary>
-        public string Name { get; set; }
+        [DataMember]
+        public string Name;
 
-        /// <summary>
-        ///     A short description of the plugin
-        /// </summary>
-        public string Description { get; set; }
+        [DataMember]
+        public string Description;
 
-        /// <summary>
-        ///     Gets or sets the author of this plugin
-        /// </summary>
-        public string Author { get; set; }
+        [DataMember]
+        public string Author;
 
-        /// <summary>
-        ///     Gets or sets the website of this plugin or its author
-        /// </summary>
-        public Uri Website { get; set; }
+        [DataMember]
+        public string Website;
 
-        /// <summary>
-        ///     Gets or sets the repository of this plugin
-        /// </summary>
-        public Uri Repository { get; set; }
+        [DataMember]
+        public string Repository;
 
-        /// <summary>
-        ///     The version of the plugin
-        /// </summary>
-        public Version Version { get; set; }
+        [DataMember]
+        public string Version;
 
-        /// <summary>
-        ///     The main entry DLL, should contain a class implementing Plugin
-        /// </summary>
-        public string Main { get; set; }
-
-        internal string PreferredPluginDirectory => $"{Main.Split(new string[] { ".dll" }, StringSplitOptions.None)[0].Replace("/", "").Replace("\\", "")}-{Guid.ToString().Substring(0, 8)}";
+        [DataMember]
+        public string Main;
     }
 }
