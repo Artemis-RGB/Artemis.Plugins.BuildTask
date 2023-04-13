@@ -196,3 +196,4 @@ src/Artemis\.Storage/Storage\.db
 docfx/docfx_project/_site/
 
 !src/Artemis.Plugins.BuildTask/build
+src/.idea/
