@@ -10,69 +10,83 @@ namespace Artemis.Plugins.BuildTask
     public class PluginCopyTask : MSBuildTask
     {
         [Required]
-        public string PluginJson { get; set; }
-
-        [Required]
         public string SourceDirectory { get; set; }
-
-        private string DestinationDirectory { get; set; }
+        
+        [Required]
+        public string AssemblyName { get; set; }
 
         public override bool Execute()
-        {
-            if (!File.Exists(PluginJson))
+        { 
+            var pluginJson = Path.Combine(SourceDirectory, "plugin.json");
+            
+            if (!File.Exists(pluginJson))
             {
                 Log.LogError("Error: could not find plugin.json");
-
                 return false;
             }
 
-            var pluginInfo = JSONSerializer<PluginInfo>.DeSerialize(File.ReadAllText(PluginJson));
+            var pluginInfo = JSONSerializer<PluginInfo>.DeSerialize(File.ReadAllText(pluginJson));
 
             if (pluginInfo == null)
             {
                 Log.LogError("Error: plugin.json formatted incorrectly");
-
                 return false;
             }
 
-            DestinationDirectory = GetDestinationDirectory(pluginInfo);
-
-            if (!Directory.Exists(DestinationDirectory))
+            var entryPoint = $"{AssemblyName}.dll";
+            if (pluginInfo.Main != entryPoint)
             {
-                Log.LogMessage("Creating plugin destination directory \'{0}\'", DestinationDirectory);
-
-                Directory.CreateDirectory(DestinationDirectory);
+                Log.LogError("Error: plugin.json main assembly \'{0}\' does not match the assembly  \'{1}\'",pluginInfo.Main, entryPoint);
+                return false;
             }
 
-            DirectoryCopy(SourceDirectory, DestinationDirectory);
+            var pluginsDirectory = GetRootPluginsDirectory();
+            if (!Directory.Exists(pluginsDirectory))
+            {
+                Log.LogError("Destination directory not found \'{0}\'", pluginsDirectory);
+                return false;
+            }
 
-            //copy over stuff
+            var pluginFolderName = GetPluginFolderName(pluginInfo);
+            var destinationDirectory = Path.Combine(pluginsDirectory, pluginFolderName);
+            if (!Directory.Exists(destinationDirectory))
+            {
+                Log.LogError("Creating plugin destination directory \'{0}\'", destinationDirectory);
+                Directory.CreateDirectory(destinationDirectory);
+            }
+            
+            Log.LogMessage("Copying plugin to \'{0}\'", destinationDirectory);
+
+            DirectoryCopy(SourceDirectory, destinationDirectory);
+            
+            Log.LogMessage("Copied plugin to \'{0}\'", destinationDirectory);
+
             return true;
         }
 
-        private static string GetDestinationDirectory(PluginInfo info)
+        private static string GetPluginFolderName(PluginInfo info)
         {
             if (!Guid.TryParse(info.Guid, out var validGuid))
                 throw new ArgumentException("Invalid GUID in plugin.json");
+            
+            var pluginFileName = Path.GetFileNameWithoutExtension(info.Main)
+                .Replace("/", "")
+                .Replace("\\", "");
 
-            var preferredPluginDirectory = $"{info.Main.Split(new string[] { ".dll" }, StringSplitOptions.None)[0].Replace("/", "").Replace("\\", "")}-{validGuid.ToString().Substring(0, 8)}";
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            var partialGuid = validGuid.ToString().Substring(0, 8);
+
+            return $"{pluginFileName}-{partialGuid}";
+        }
+        
+        private static string GetRootPluginsDirectory()
+        {
+            var specialFolder = Environment.OSVersion.Platform switch 
             {
-                return Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                    "Artemis",
-                    "Plugins",
-                    preferredPluginDirectory);
-            }
-            else
-            {
-                //linux (and mac?)
-                return Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "Artemis",
-                    "Plugins",
-                    preferredPluginDirectory);
-            }
+                PlatformID.Win32NT => Environment.SpecialFolder.CommonApplicationData,
+                _ => Environment.SpecialFolder.LocalApplicationData
+            };
+            
+            return Path.Combine(Environment.GetFolderPath(specialFolder), "Artemis", "Plugins");
         }
 
         private static void DirectoryCopy(string sourceDirName, string destDirName)

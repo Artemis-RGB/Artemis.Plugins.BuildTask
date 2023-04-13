@@ -1,6 +1,6 @@
 ﻿<Project>
-	<!--EnablePluginCopy can be overriden by the user in csproj, otherwise, it uses the default-->
-	<Target Name="RunPluginCopyTask" AfterTargets="Build" Condition="'$(EnablePluginCopy)' == 'true'">
-		<PluginCopyTask SourceDirectory="$(TargetDir)" PluginJson="$(ProjectDir)plugin.json"/>
-	</Target>
+    <!--EnablePluginCopy can be overriden by the user in csproj, otherwise, it uses the default-->
+    <Target Name="RunPluginCopyTask" AfterTargets="Build" Condition="'$(EnablePluginCopy)' == 'true'">
+        <PluginCopyTask SourceDirectory="$(TargetDir)" AssemblyName="$(AssemblyName)"/>
+    </Target>
 </Project>
