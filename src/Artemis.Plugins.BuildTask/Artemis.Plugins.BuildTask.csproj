@@ -18,7 +18,7 @@
 	<RepositoryUrl>https://github.com/Artemis-RGB/Artemis.Plugins.BuildTask</RepositoryUrl>
 	<PackageProjectUrl>https://artemis-rgb.com/</PackageProjectUrl>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
-	<LangVersion>11</LangVersion>
+	<LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
