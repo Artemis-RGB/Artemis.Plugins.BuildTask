@@ -5,7 +5,7 @@ MSBuild task that copies the just-built plugin binaries to the Artemis plugin di
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="Artemis.Plugins.BuildTask" Version="1.0.0" />
+    <PackageReference Include="Artemis.Plugins.BuildTask" Version="1.3.0" />
 </ItemGroup>
 ```
 
@@ -21,7 +21,3 @@ This behaviour can be overriden in the csproj file with :
 
 or via the dotnet command line interface:
 `dotnet build -p:EnablePluginCopy=true`
-
-# Note
-
-This cannot be used yet as it hasn't been published to NuGet due to a package id conflict.
