@@ -51,7 +51,7 @@ namespace Artemis.Plugins.BuildTask
             var destinationDirectory = Path.Combine(pluginsDirectory, pluginFolderName);
             if (!Directory.Exists(destinationDirectory))
             {
-                Log.LogError("Creating plugin destination directory \'{0}\'", destinationDirectory);
+                Log.LogMessage("Creating plugin destination directory \'{0}\'", destinationDirectory);
                 Directory.CreateDirectory(destinationDirectory);
             }
             
