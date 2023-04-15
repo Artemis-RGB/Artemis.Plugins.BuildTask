@@ -12,11 +12,9 @@ namespace Artemis.Plugins.BuildTask
         public static string Serialize(TType instance)
         {
             var serializer = new DataContractJsonSerializer(typeof(TType));
-            using (var stream = new MemoryStream())
-            {
-                serializer.WriteObject(stream, instance);
-                return Encoding.Default.GetString(stream.ToArray());
-            }
+            using var stream = new MemoryStream();
+            serializer.WriteObject(stream, instance);
+            return Encoding.Default.GetString(stream.ToArray());
         }
 
         /// <summary>
@@ -24,11 +22,9 @@ namespace Artemis.Plugins.BuildTask
         /// </summary>
         public static TType DeSerialize(string json)
         {
-            using (var stream = new MemoryStream(Encoding.Default.GetBytes(json)))
-            {
-                var serializer = new DataContractJsonSerializer(typeof(TType));
-                return serializer.ReadObject(stream) as TType;
-            }
+            using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
+            var serializer = new DataContractJsonSerializer(typeof(TType));
+            return serializer.ReadObject(stream) as TType;
         }
     }
 }

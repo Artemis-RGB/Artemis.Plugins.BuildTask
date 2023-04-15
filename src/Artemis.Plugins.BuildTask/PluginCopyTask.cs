@@ -7,6 +7,7 @@ using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Artemis.Plugins.BuildTask
 {
+    // ReSharper disable once UnusedType.Global
     public class PluginCopyTask : MSBuildTask
     {
         [Required]
@@ -17,15 +18,15 @@ namespace Artemis.Plugins.BuildTask
 
         public override bool Execute()
         { 
-            var pluginJson = Path.Combine(SourceDirectory, "plugin.json");
+            var sourcePluginJson = Path.Combine(SourceDirectory, "plugin.json");
             
-            if (!File.Exists(pluginJson))
+            if (!File.Exists(sourcePluginJson))
             {
                 Log.LogError("Error: could not find plugin.json");
                 return false;
             }
 
-            var pluginInfo = JSONSerializer<PluginInfo>.DeSerialize(File.ReadAllText(pluginJson));
+            var pluginInfo = JSONSerializer<PluginInfo>.DeSerialize(File.ReadAllText(sourcePluginJson));
 
             if (pluginInfo == null)
             {
@@ -55,12 +56,21 @@ namespace Artemis.Plugins.BuildTask
                 Directory.CreateDirectory(destinationDirectory);
             }
             
+            Log.LogMessage("Deleting old plugin files");
+            
+            foreach (var file in Directory.GetFiles(destinationDirectory))
+                File.Delete(file);
+            
             Log.LogMessage("Copying plugin to \'{0}\'", destinationDirectory);
 
             DirectoryCopy(SourceDirectory, destinationDirectory);
             
-            Log.LogMessage("Copied plugin to \'{0}\'", destinationDirectory);
-
+            Log.LogMessage("Copying plugin.json");
+            
+            var destinationPluginJson = Path.Combine(destinationDirectory, "plugin.json");
+            File.Copy(sourcePluginJson, destinationPluginJson, true);
+            File.SetLastWriteTimeUtc(destinationPluginJson, DateTime.UtcNow);
+            
             return true;
         }
 
@@ -110,6 +120,9 @@ namespace Artemis.Plugins.BuildTask
             FileInfo[] files = dir.GetFiles();
             foreach (FileInfo file in files)
             {
+                // We want to copy the plugin.json last so that the plugin is not loaded before it's fully copied
+                if (file.Name == "plugin.json")
+                    continue;
                 string tempPath = Path.Combine(destDirName, file.Name);
                 file.CopyTo(tempPath, true);
             }
